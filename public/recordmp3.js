@@ -77,7 +77,7 @@ var recorder;
         //uncomment the next line, to listen the sound directly
         //input.connect(audio_context.destination);
         
-        recorder._recorder = new Recorder(input);
+        recorder._recorder = new Recorder(input,{bitrate:8});
     }
     
 	
@@ -171,7 +171,7 @@ var recorder;
 					mode: 3,
 					channels: 1,
 					samplerate: data.sampleRate,
-					bitrate: data.bitsPerSample
+					bitrate: config.bitrate || data.bitsPerSample
 				}});
                 
                 encoderWorker.postMessage({cmd: 'encode',buf: Uint8ArrayToFloat32Array(data.samples)});
