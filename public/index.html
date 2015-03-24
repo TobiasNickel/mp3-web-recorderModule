@@ -45,20 +45,31 @@
 		log.innerHTML = "\n" + e + " " + (data || '') + log.innerHTML ;
 	}
 
+	var canRecordNext=true;
+	var startedRecording=false;
 	// start method for the button
 	function startRecording() {
+		if(!canRecordNext)return;
+		console.log('start recording');
 		// starting the record
 		recorder && recorder.record();
 		
 		// and notifying the user
 		__log('Recording...');
+		canRecordNext = false;
+		startedRecording = true;
 	}
 	
 	// stop method for the button
 	function stopRecording() {
+		if(!startedRecording)return;
 		recorder && recorder.stop();
 		__log('Stopped recording.');
+		canRecordNext = false;
+		startedRecording=false;
 	}
+	
+	
 	
 	// initialising the recorder and the events
 	window.addEventListener('load',function(){
@@ -67,12 +78,19 @@
 		recorder.on('newrecord',function(record){
 			record=record[0];
 			// upload to the server
-			record.upload('/upload.json',function(err,filename){
+			var filename = 'walkietalkie_recording_' + new Date().getTime() + '.mp3';
+			__log('start uploading');
+			record.upload('/upload.json', filename, function(err, filename){
+				canRecordNext = true;
 				if(err)return;
 				__log(filename + ' is playing everywhere</a>')
 			});
-		})
-	})
+		});
+		recorder.on('convert',function(){
+			__log('converting to MP3')
+		});
+	});
+	
 	/*
 	 *the handler for mobile devices
 	 */

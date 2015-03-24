@@ -2,6 +2,15 @@ var recorder;
 (function(window) {
     
 	recorder = {
+		/**
+		 *the events are 
+		 * begin: when someone starts to record
+		 * stop: when some program stops the current recording
+		 * clear: when some program clear the recorder
+		 * config: when someone changes the config
+		 * convert: when the module begins to convert some wave to MP3
+		 * newrecord: when the MP3 convertation is finished 
+		 */
 		_events: {},
         on: function(event, callback) {
 			event = event.toLowerCase();
@@ -63,8 +72,14 @@ var recorder;
 			this._recorder.clear();
 			this.trigger('clear')
 		},
-		configure:function(){
-			this._recorder.configure();
+		/**
+		 * @param config {object} some object with options
+		 *		options are:
+		 *			bitrate: int || 128
+		 *			
+		 */
+		configure:function(config){
+			this._recorder.configure(config);
 			this.trigger('config')
 		},
 		_audio_context: null,
@@ -257,13 +272,13 @@ var recorder;
 	Record.prototype.getDataURL = function(){
 		return 'data:audio/mp3;base64,'+encode64(this.data);
 	};
-    Record.prototype.upload = function(url,sucess,progress) {
+    Record.prototype.upload = function(url,filename,sucess,progress) {
 		var that = this;
 		var mp3Blob = new Blob([new Uint8Array(this.data)], {type: 'audio/mp3'});
 		var reader = new FileReader();
 		reader.onload = function(event) {
 			var fd = new FormData();
-			var mp3Name = encodeURIComponent('audio_recording_' + new Date().getTime() + '.mp3');
+			var mp3Name = encodeURIComponent(filename);
 			console.log("mp3name = " + mp3Name);
 			fd.append('fname', mp3Name);
 			fd.append('data', mp3Blob, mp3Name);
